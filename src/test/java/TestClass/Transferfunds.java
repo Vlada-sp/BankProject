@@ -5,9 +5,12 @@ import BaseClass.Base;
 import Pages.HomePage;
 import Pages.LoginPage;
 import Pages.OnlineBankPage;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -24,10 +27,10 @@ public class Transferfunds extends Base {
     public OnlineBankPage onlineBankPage;
     public LoginPage loginPage;
 
+
     @BeforeMethod
     public void pageSetUp() throws IOException {
-        //   ChromeOptions options = new ChromeOptions();
-        //  options.addArguments("--incognito");
+
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.navigate().to("http://zero.webappsecurity.com/index.html");
@@ -37,10 +40,11 @@ public class Transferfunds extends Base {
         loginPage = new LoginPage(driver);
 
 
+
     }
 
 
-    @Test
+    @Test()
     public void successfulTransferFundsFromSavingsToChecking () throws InterruptedException {
         homePage.GetsigninButton().click();
         Assert.assertEquals(driver.getCurrentUrl(),"http://zero.webappsecurity.com/login.html");
@@ -62,8 +66,11 @@ Thread.sleep(2000);
         homePage.ClickProfile();
         Assert.assertTrue(homePage.GetLogoutButton().isDisplayed(),"User is not logged in");
 
+Thread.sleep(1000);
 
         homePage.GoToOnlineBankingMenu();
+
+
         Assert.assertEquals(driver.getCurrentUrl(),"http://zero.webappsecurity.com/online-banking.html");
         onlineBankPage.transferFundsLink();
 
@@ -72,10 +79,20 @@ Thread.sleep(2000);
         dropdown.selectByValue("2");
         onlineBankPage.InputAmount().sendKeys("500");
         onlineBankPage.description().sendKeys("Savings");
+
         onlineBankPage.submitButton().click();
-String text = onlineBankPage.boardContent().getText();
-        Assert.assertTrue(text.contains("Please verify that the following transaction is correct\"),\n" +
-                "        \"Tekst potvrde transakcije nije pronađen u board-content."));
+
+        String text = onlineBankPage.boardContent().getText();
+
+        Assert.assertTrue(text.contains("Please verify that the following transaction is correct by selecting"));
+        driver.findElement(By.id("btn_submit")).click();
+
+        String text2 = onlineBankPage.alertSuccess().getText();
+
+        Assert.assertTrue(text2.contains("You successfully submitted your transaction."));
+        Assert.assertEquals(driver.getCurrentUrl(),"http://zero.webappsecurity.com/bank/transfer-funds-confirm.html");
+
+    }
 
 
 
@@ -83,4 +100,4 @@ String text = onlineBankPage.boardContent().getText();
 
 
     }
-}
+
